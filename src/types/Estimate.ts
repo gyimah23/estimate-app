@@ -2,6 +2,7 @@
 export interface Material {
   id: string;
   name: string;
+  brand?: string;
   quantity: number;
   unitCost: number;
   total: number;

@@ -57,6 +57,7 @@ const EstimatePrintView = ({ estimate, selectedCurrency }: EstimatePrintViewProp
             <thead>
               <tr className="bg-blue-50">
                 <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Material Name</th>
+                <th className="border border-gray-300 px-4 py-3 text-left font-semibold">Brand</th>
                 <th className="border border-gray-300 px-4 py-3 text-center font-semibold">Quantity</th>
                 <th className="border border-gray-300 px-4 py-3 text-right font-semibold">Unit Cost</th>
                 <th className="border border-gray-300 px-4 py-3 text-right font-semibold">Total</th>
@@ -66,13 +67,14 @@ const EstimatePrintView = ({ estimate, selectedCurrency }: EstimatePrintViewProp
               {estimate.materials.map((material) => (
                 <tr key={material.id} className="hover:bg-gray-50">
                   <td className="border border-gray-300 px-4 py-3">{material.name}</td>
+                  <td className="border border-gray-300 px-4 py-3">{material.brand || '-'}</td>
                   <td className="border border-gray-300 px-4 py-3 text-center">{material.quantity}</td>
                   <td className="border border-gray-300 px-4 py-3 text-right">{selectedCurrency.symbol}{material.unitCost.toFixed(2)}</td>
                   <td className="border border-gray-300 px-4 py-3 text-right font-semibold">{selectedCurrency.symbol}{material.total.toFixed(2)}</td>
                 </tr>
               ))}
               <tr className="bg-green-50">
-                <td colSpan={3} className="border border-gray-300 px-4 py-3 text-right font-bold">Materials Subtotal:</td>
+                <td colSpan={4} className="border border-gray-300 px-4 py-3 text-right font-bold">Materials Subtotal:</td>
                 <td className="border border-gray-300 px-4 py-3 text-right font-bold text-green-600">{selectedCurrency.symbol}{estimate.materialsCost.toFixed(2)}</td>
               </tr>
             </tbody>
