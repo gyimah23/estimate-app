@@ -28,9 +28,9 @@ const EstimateForm = ({ estimate, onSave, onCancel }: EstimateFormProps) => {
   const [projectTitle, setProjectTitle] = useState('');
   const [clientName, setClientName] = useState('');
   const [clientAddress, setClientAddress] = useState('');
+  const [brand, setBrand] = useState('');
   const [materials, setMaterials] = useState<Material[]>([]);
   const [labor, setLabor] = useState<Labor[]>([]);
-  const [taxRate, setTaxRate] = useState(8.5);
   const [notes, setNotes] = useState('');
   const [currency, setCurrency] = useState('GHS');
   const { toast } = useToast();
@@ -42,9 +42,9 @@ const EstimateForm = ({ estimate, onSave, onCancel }: EstimateFormProps) => {
       setProjectTitle(estimate.projectTitle);
       setClientName(estimate.clientName);
       setClientAddress(estimate.clientAddress);
+      setBrand(estimate.brand || '');
       setMaterials(estimate.materials);
       setLabor(estimate.labor);
-      setTaxRate(estimate.taxRate);
       setNotes(estimate.notes || '');
       setCurrency(estimate.currency || 'GHS');
     }
@@ -110,28 +110,26 @@ const EstimateForm = ({ estimate, onSave, onCancel }: EstimateFormProps) => {
     const materialsCost = materials.reduce((sum, material) => sum + material.total, 0);
     const laborCost = labor.reduce((sum, laborItem) => sum + laborItem.total, 0);
     const subtotal = materialsCost + laborCost;
-    const taxAmount = (subtotal * taxRate) / 100;
-    const grandTotal = subtotal + taxAmount;
+    const grandTotal = subtotal; // No tax calculation
 
-    return { materialsCost, laborCost, subtotal, taxAmount, grandTotal };
+    return { materialsCost, laborCost, subtotal, grandTotal };
   };
 
   const handleSave = () => {
-    const { materialsCost, laborCost, subtotal, taxAmount, grandTotal } = calculateTotals();
+    const { materialsCost, laborCost, subtotal, grandTotal } = calculateTotals();
     
     const estimateData: Estimate = {
       id: estimate?.id || Date.now().toString(),
       projectTitle,
       clientName,
       clientAddress,
+      brand,
       date: estimate?.date || new Date().toISOString().split('T')[0],
       materials,
       labor,
       materialsCost,
       laborCost,
       subtotal,
-      taxRate,
-      taxAmount,
       grandTotal,
       notes,
       currency
@@ -141,7 +139,7 @@ const EstimateForm = ({ estimate, onSave, onCancel }: EstimateFormProps) => {
   };
 
   const shareViaWhatsApp = () => {
-    const { materialsCost, laborCost, subtotal, taxAmount, grandTotal } = calculateTotals();
+    const { materialsCost, laborCost, subtotal, grandTotal } = calculateTotals();
     
     // Create detailed WhatsApp message in document format
     let message = `📋 *ELECTRICAL ESTIMATE DOCUMENT*\n`;
@@ -157,6 +155,7 @@ const EstimateForm = ({ estimate, onSave, onCancel }: EstimateFormProps) => {
     message += `Project: ${projectTitle}\n`;
     message += `Client: ${clientName}\n`;
     message += `Address: ${clientAddress}\n`;
+    if (brand) message += `Brand: ${brand}\n`;
     message += `Date: ${new Date().toLocaleDateString()}\n`;
     message += `Currency: ${selectedCurrency.name}\n\n`;
     
@@ -186,7 +185,6 @@ const EstimateForm = ({ estimate, onSave, onCancel }: EstimateFormProps) => {
     message += `📊 *ESTIMATE SUMMARY*\n`;
     message += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
     message += `Subtotal: ${selectedCurrency.symbol}${subtotal.toFixed(2)}\n`;
-    message += `Tax (${taxRate}%): ${selectedCurrency.symbol}${taxAmount.toFixed(2)}\n`;
     message += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
     message += `🏆 *GRAND TOTAL: ${selectedCurrency.symbol}${grandTotal.toFixed(2)}*\n\n`;
     
@@ -212,21 +210,20 @@ const EstimateForm = ({ estimate, onSave, onCancel }: EstimateFormProps) => {
     });
   };
 
-  const { materialsCost, laborCost, subtotal, taxAmount, grandTotal } = calculateTotals();
+  const { materialsCost, laborCost, subtotal, grandTotal } = calculateTotals();
 
   const currentEstimate: Estimate = {
     id: estimate?.id || Date.now().toString(),
     projectTitle,
     clientName,
     clientAddress,
+    brand,
     date: estimate?.date || new Date().toISOString().split('T')[0],
     materials,
     labor,
     materialsCost,
     laborCost,
     subtotal,
-    taxRate,
-    taxAmount,
     grandTotal,
     notes,
     currency
@@ -235,18 +232,18 @@ const EstimateForm = ({ estimate, onSave, onCancel }: EstimateFormProps) => {
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 print:hidden">
-        {/* ... keep existing code (main form UI) */}
         <div className="max-w-6xl mx-auto">
-          {/* Enhanced Header */}
+          {/* Enhanced Header with smaller back button */}
           <div className="flex items-center justify-between mb-8 animate-fade-in">
             <div className="flex items-center space-x-4">
               <Button 
                 variant="outline" 
+                size="sm"
                 onClick={onCancel}
-                className="hover:bg-blue-50 transition-all duration-300 hover:scale-105"
+                className="hover:bg-blue-50 transition-all duration-300 hover:scale-105 px-3 py-2"
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Dashboard
+                <ArrowLeft className="h-4 w-4 mr-1" />
+                Back
               </Button>
               <div>
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -285,7 +282,7 @@ const EstimateForm = ({ estimate, onSave, onCancel }: EstimateFormProps) => {
           <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
             {/* Main Form */}
             <div className="xl:col-span-3 space-y-8">
-              {/* Project Info */}
+              {/* Project Info with Brand field */}
               <Card className="animate-fade-in shadow-lg border-0 bg-gradient-to-r from-white to-blue-50">
                 <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
                   <CardTitle className="text-xl">Project Information</CardTitle>
@@ -325,6 +322,18 @@ const EstimateForm = ({ estimate, onSave, onCancel }: EstimateFormProps) => {
                         className="transition-all duration-300 focus:ring-2 focus:ring-blue-500 hover:border-blue-300"
                       />
                     </div>
+                    <div className="space-y-3">
+                      <Label htmlFor="brand" className="text-sm font-semibold text-gray-700">Brand</Label>
+                      <Input
+                        id="brand"
+                        placeholder="Company/Brand Name"
+                        value={brand}
+                        onChange={(e) => setBrand(e.target.value)}
+                        className="transition-all duration-300 focus:ring-2 focus:ring-blue-500 hover:border-blue-300"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
                     <div className="space-y-3">
                       <Label htmlFor="currency" className="text-sm font-semibold text-gray-700">Currency</Label>
                       <Select value={currency} onValueChange={setCurrency}>
@@ -535,7 +544,7 @@ const EstimateForm = ({ estimate, onSave, onCancel }: EstimateFormProps) => {
               </Card>
             </div>
 
-            {/* Enhanced Summary Sidebar */}
+            {/* Enhanced Summary Sidebar - removed tax fields */}
             <div className="space-y-6">
               <Card className="animate-fade-in sticky top-4 shadow-xl border-0 bg-gradient-to-br from-white via-blue-50 to-purple-50" style={{ animationDelay: '0.4s' }}>
                 <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
@@ -554,30 +563,6 @@ const EstimateForm = ({ estimate, onSave, onCancel }: EstimateFormProps) => {
                     <div className="flex justify-between items-center p-3 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg">
                       <span className="text-gray-700 font-medium">Labor:</span>
                       <span className="font-bold text-orange-600">{selectedCurrency.symbol}{laborCost.toFixed(2)}</span>
-                    </div>
-                    <Separator />
-                    <div className="flex justify-between items-center p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
-                      <span className="text-gray-700 font-medium">Subtotal:</span>
-                      <span className="font-bold text-blue-600">{selectedCurrency.symbol}{subtotal.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-gradient-to-r from-gray-50 to-slate-50 rounded-lg">
-                      <Label htmlFor="taxRate" className="text-gray-700 font-medium">Tax Rate (%):</Label>
-                      <div className="w-20">
-                        <Input
-                          id="taxRate"
-                          type="number"
-                          min="0"
-                          max="20"
-                          step="0.1"
-                          value={taxRate}
-                          onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)}
-                          className="text-right transition-all duration-300 focus:ring-2 focus:ring-purple-500"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg">
-                      <span className="text-gray-700 font-medium">Tax Amount:</span>
-                      <span className="font-bold text-yellow-600">{selectedCurrency.symbol}{taxAmount.toFixed(2)}</span>
                     </div>
                     <Separator />
                     <div className="flex justify-between items-center p-4 bg-gradient-to-r from-purple-100 to-indigo-100 rounded-lg border-2 border-purple-200">

@@ -1,4 +1,3 @@
-
 import { Estimate } from '../types/Estimate';
 
 interface EstimatePrintViewProps {
@@ -38,13 +37,13 @@ const EstimatePrintView = ({ estimate, selectedCurrency }: EstimatePrintViewProp
             <p><span className="font-semibold">Project:</span> {estimate.projectTitle}</p>
             <p><span className="font-semibold">Client:</span> {estimate.clientName}</p>
             <p><span className="font-semibold">Address:</span> {estimate.clientAddress}</p>
+            {estimate.brand && <p><span className="font-semibold">Brand:</span> {estimate.brand}</p>}
           </div>
         </div>
         <div>
           <h3 className="font-bold text-gray-800 mb-3">Estimate Summary</h3>
           <div className="space-y-2">
             <p><span className="font-semibold">Currency:</span> {selectedCurrency.name}</p>
-            <p><span className="font-semibold">Tax Rate:</span> {estimate.taxRate}%</p>
             <p><span className="font-semibold">Status:</span> {estimate.status || 'Draft'}</p>
           </div>
         </div>
@@ -116,14 +115,6 @@ const EstimatePrintView = ({ estimate, selectedCurrency }: EstimatePrintViewProp
       <div className="border-t-2 border-gray-300 pt-6">
         <div className="max-w-md ml-auto">
           <div className="space-y-3">
-            <div className="flex justify-between text-lg">
-              <span className="font-semibold">Subtotal:</span>
-              <span>{selectedCurrency.symbol}{estimate.subtotal.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-lg">
-              <span className="font-semibold">Tax ({estimate.taxRate}%):</span>
-              <span>{selectedCurrency.symbol}{estimate.taxAmount.toFixed(2)}</span>
-            </div>
             <div className="flex justify-between text-xl font-bold border-t pt-3 text-blue-600">
               <span>GRAND TOTAL:</span>
               <span>{selectedCurrency.symbol}{estimate.grandTotal.toFixed(2)}</span>

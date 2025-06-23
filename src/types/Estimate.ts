@@ -20,14 +20,13 @@ export interface Estimate {
   projectTitle: string;
   clientName: string;
   clientAddress: string;
+  brand?: string;
   date: string;
   materials: Material[];
   labor: Labor[];
   materialsCost: number;
   laborCost: number;
   subtotal: number;
-  taxRate: number;
-  taxAmount: number;
   grandTotal: number;
   currency?: string;
   status?: string;
