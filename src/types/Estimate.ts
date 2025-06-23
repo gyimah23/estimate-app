@@ -29,6 +29,7 @@ export interface Estimate {
   taxRate: number;
   taxAmount: number;
   grandTotal: number;
+  currency?: string;
   status?: string;
   notes?: string;
 }
